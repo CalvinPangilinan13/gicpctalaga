@@ -4,34 +4,49 @@ on:
   push:
     branches:
       - main
-      - master
   workflow_dispatch:
 
 jobs:
-  deploy:
+  ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Validate required deployment secrets
+      - name: Normalize deployment settings
         env:
-          FTP_SERVER: ${{ secrets.INFINITYFREE_FTP_SERVER }}
-          FTP_USERNAME: ${{ secrets.INFINITYFREE_FTP_USERNAME }}
-          FTP_PASSWORD: ${{ secrets.INFINITYFREE_FTP_PASSWORD }}
+          FTP_SERVER_PRIMARY: ${{ secrets.INFINITYFREE_FTP_SERVER }}
+          FTP_SERVER_LEGACY: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME_PRIMARY: ${{ secrets.INFINITYFREE_FTP_USERNAME }}
+          FTP_USERNAME_LEGACY: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD_PRIMARY: ${{ secrets.INFINITYFREE_FTP_PASSWORD }}
+          FTP_PASSWORD_LEGACY: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR_PRIMARY: ${{ secrets.INFINITYFREE_FTP_SERVER_DIR }}
+          FTP_SERVER_DIR_LEGACY: ${{ secrets.FTP_SERVER_DIR }}
           DB_HOST: ${{ secrets.INFINITYFREE_DB_HOST }}
           DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
           DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
+          DB_PORT: ${{ secrets.INFINITYFREE_DB_PORT }}
         run: |
-          test -n "$FTP_SERVER" || { echo "Missing INFINITYFREE_FTP_SERVER secret"; exit 1; }
-          test -n "$FTP_USERNAME" || { echo "Missing INFINITYFREE_FTP_USERNAME secret"; exit 1; }
-          test -n "$FTP_PASSWORD" || { echo "Missing INFINITYFREE_FTP_PASSWORD secret"; exit 1; }
+          ftp_server="${FTP_SERVER_PRIMARY:-${FTP_SERVER_LEGACY:-ftpupload.net}}"
+          ftp_username="${FTP_USERNAME_PRIMARY:-$FTP_USERNAME_LEGACY}"
+          ftp_password="${FTP_PASSWORD_PRIMARY:-$FTP_PASSWORD_LEGACY}"
+          ftp_server_dir="${FTP_SERVER_DIR_PRIMARY:-${FTP_SERVER_DIR_LEGACY:-/htdocs/}}"
+
+          test -n "$ftp_username" || { echo "Missing FTP username secret (INFINITYFREE_FTP_USERNAME or FTP_USERNAME)"; exit 1; }
+          test -n "$ftp_password" || { echo "Missing FTP password secret (INFINITYFREE_FTP_PASSWORD or FTP_PASSWORD)"; exit 1; }
           test -n "$DB_HOST" || { echo "Missing INFINITYFREE_DB_HOST secret"; exit 1; }
           test -n "$DB_NAME" || { echo "Missing INFINITYFREE_DB_NAME secret"; exit 1; }
           test -n "$DB_USERNAME" || { echo "Missing INFINITYFREE_DB_USERNAME secret"; exit 1; }
           test -n "$DB_PASSWORD" || { echo "Missing INFINITYFREE_DB_PASSWORD secret"; exit 1; }
+
+          echo "FTP_SERVER=$ftp_server" >> "$GITHUB_ENV"
+          echo "FTP_USERNAME=$ftp_username" >> "$GITHUB_ENV"
+          echo "FTP_PASSWORD=$ftp_password" >> "$GITHUB_ENV"
+          echo "FTP_SERVER_DIR=$ftp_server_dir" >> "$GITHUB_ENV"
+          echo "DB_PORT=${DB_PORT:-3306}" >> "$GITHUB_ENV"
 
       - name: Build production database override
         env:
@@ -39,7 +54,7 @@ jobs:
           DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
           DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
-          DB_PORT: ${{ secrets.INFINITYFREE_DB_PORT }}
+          DB_PORT: ${{ env.DB_PORT }}
         run: |
           php <<'PHP'
           <?php
@@ -56,13 +71,13 @@ jobs:
           file_put_contents('application/config/database.production.php', $content);
           PHP
 
-      - name: Deploy files to InfinityFree
+      - name: FTP Deploy to InfinityFree
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.INFINITYFREE_FTP_SERVER }}
-          username: ${{ secrets.INFINITYFREE_FTP_USERNAME }}
-          password: ${{ secrets.INFINITYFREE_FTP_PASSWORD }}
-          server-dir: /htdocs/
+          server: ${{ env.FTP_SERVER }}
+          username: ${{ env.FTP_USERNAME }}
+          password: ${{ env.FTP_PASSWORD }}
+          server-dir: ${{ env.FTP_SERVER_DIR }}
           exclude: |
             **/.git*
             **/.github/**
