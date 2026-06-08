@@ -1,4 +1,6 @@
-<section class="hero-section">
+<?php $hero_image_url = media_url(isset($church_profile->hero_image) ? $church_profile->hero_image : '', 'images/hero-pattern.svg'); ?>
+
+<section class="hero-section" style="--hero-image: url('<?php echo html_escape($hero_image_url); ?>');">
 	<div class="container position-relative">
 		<div class="row align-items-center g-5">
 			<div class="col-lg-7">
