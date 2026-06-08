@@ -58,7 +58,7 @@ class Auth extends CI_Controller
 						'created_at' => date('Y-m-d H:i:s'),
 					));
 
-					redirect('admin');
+					redirect(admin_first_accessible_url(isset($user->role_permissions) ? $user->role_permissions : NULL));
 				}
 
 				$this->session->set_flashdata('auth_error', 'Invalid email address or password.');

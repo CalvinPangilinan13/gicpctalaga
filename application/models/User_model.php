@@ -13,7 +13,7 @@ class User_model extends MY_Model
 
 	public function get_with_role($id)
 	{
-		$this->db->select('users.*, roles.name AS role_name, roles.slug AS role_slug');
+		$this->db->select('users.*, roles.name AS role_name, roles.slug AS role_slug, roles.permissions AS role_permissions');
 		$this->db->from($this->table);
 		$this->db->join('roles', 'roles.id = users.role_id');
 		$this->db->where('users.id', $id);

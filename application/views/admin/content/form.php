@@ -25,8 +25,16 @@ $action_label = $is_edit ? 'Update' : 'Create';
 				$field_name = $field['name'];
 				$current_value = set_value($field_name, form_value($item, $field_name));
 				$field_type = $field['type'];
+				if ($field_type === 'checkbox_group')
+				{
+					$current_value = isset($_POST[$field_name]) && is_array($_POST[$field_name]) ? $_POST[$field_name] : normalize_role_permissions($current_value, TRUE);
+					if ($current_value === NULL)
+					{
+						$current_value = array();
+					}
+				}
 				?>
-				<div class="col-lg-<?php echo $field_type === 'textarea' ? '12' : '6'; ?>">
+				<div class="col-lg-<?php echo in_array($field_type, array('textarea', 'checkbox_group'), TRUE) ? '12' : '6'; ?>">
 					<label class="form-label" for="<?php echo html_escape($field_name); ?>"><?php echo html_escape($field['label']); ?></label>
 					<?php if ($field_type === 'textarea'): ?>
 						<textarea class="form-control" id="<?php echo html_escape($field_name); ?>" name="<?php echo html_escape($field_name); ?>" rows="6"><?php echo html_escape($current_value); ?></textarea>
@@ -41,6 +49,20 @@ $action_label = $is_edit ? 'Update' : 'Create';
 							<input class="form-check-input" type="checkbox" id="<?php echo html_escape($field_name); ?>" name="<?php echo html_escape($field_name); ?>" value="1" <?php echo !empty($current_value) ? 'checked' : ''; ?>>
 							<label class="form-check-label" for="<?php echo html_escape($field_name); ?>">Enable this option</label>
 						</div>
+					<?php elseif ($field_type === 'checkbox_group'): ?>
+						<div class="row g-2 mt-1">
+							<?php foreach ($field['options'] as $option_key => $option_label): ?>
+								<div class="col-sm-6">
+									<label class="form-check border rounded-4 px-3 py-2 h-100 d-flex align-items-start gap-2">
+										<input class="form-check-input mt-1" type="checkbox" name="<?php echo html_escape($field_name); ?>[]" value="<?php echo html_escape($option_key); ?>" <?php echo in_array((string) $option_key, $current_value, TRUE) ? 'checked' : ''; ?>>
+										<span>
+											<span class="fw-semibold d-block"><?php echo html_escape($option_label); ?></span>
+											<span class="small text-muted"><?php echo html_escape(module_label($option_key)); ?></span>
+										</span>
+									</label>
+								</div>
+							<?php endforeach; ?>
+						</div>
 					<?php elseif ($field_type === 'file'): ?>
 						<input class="form-control" id="<?php echo html_escape($field_name); ?>" type="file" name="<?php echo html_escape($field_name); ?><?php echo $field_name === 'gallery_images' ? '[]' : ''; ?>" <?php echo $field_name === 'gallery_images' ? 'multiple' : ''; ?>>
 						<?php if (!empty($current_value) && $field_name !== 'audio_upload' && $field_name !== 'pdf_upload' && $field_name !== 'gallery_images'): ?>
@@ -50,6 +72,9 @@ $action_label = $is_edit ? 'Update' : 'Create';
 						<?php endif; ?>
 					<?php else: ?>
 						<input class="form-control" id="<?php echo html_escape($field_name); ?>" type="<?php echo $field_type === 'datetime' ? 'datetime-local' : html_escape($field_type); ?>" name="<?php echo html_escape($field_name); ?>" value="<?php echo html_escape($field_type === 'datetime' && !empty($current_value) ? date('Y-m-d\TH:i', strtotime($current_value)) : $current_value); ?>">
+					<?php endif; ?>
+					<?php if (!empty($field['help'])): ?>
+						<div class="form-text"><?php echo html_escape($field['help']); ?></div>
 					<?php endif; ?>
 				</div>
 			<?php endforeach; ?>

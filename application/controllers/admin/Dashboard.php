@@ -59,6 +59,8 @@ class Dashboard extends Admin_Controller
 
 	public function index()
 	{
+		$this->authorize_admin_access('dashboard');
+
 		$data = array(
 			'page_title' => 'Dashboard',
 			'stats' => array(
@@ -71,7 +73,7 @@ class Dashboard extends Admin_Controller
 				array('label' => 'Gallery Albums', 'value' => $this->gallery_model->count_all(), 'icon' => 'bi-images'),
 				array('label' => 'Users', 'value' => $this->user_model->count_all(), 'icon' => 'bi-person-gear'),
 			),
-			'quick_links' => admin_navigation(),
+			'quick_links' => isset($this->admin_data['admin_menu']) ? $this->admin_data['admin_menu'] : admin_navigation(),
 			'latest_activities' => $this->activity_log_model->get_recent(8),
 			'upcoming_events' => $this->event_model->get_upcoming(5),
 			'pending_requests' => $this->prayer_request_model->get_latest(5),
