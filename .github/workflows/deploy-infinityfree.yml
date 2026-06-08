@@ -7,8 +7,8 @@ on:
       - staging
 
 env:
-  FTP_USER: ${{ secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME }}
-  FTP_PASS: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
+  FTP_USER: if0_42125686
+  FTP_PASS: 6ogMVNzeTDmbl
 
 jobs:
   ftp-deploy:
