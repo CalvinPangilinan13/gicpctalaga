@@ -58,9 +58,9 @@ jobs:
             composer.json
             composer.lock
 
-      # ✅ STAGING (gicpcstaging.page.gd)
-      - name: FTP Deploy to Staging
-        if: github.ref == 'refs/heads/staging'
+      # ✅ Main (graceinchristpc.online)
+      - name: FTP Deploy to Main
+        if: github.ref == 'refs/heads/main'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
