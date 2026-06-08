@@ -81,6 +81,27 @@ class Content extends Admin_Controller
 		$this->render_form($module, $config, $item, 'create');
 	}
 
+	public function view($module, $id)
+	{
+		$config = $this->get_module_config($module);
+		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
+
+		if (empty($config['allow_view']))
+		{
+			redirect('admin/content/'.$module);
+		}
+
+		$model = $config['model'];
+		$item = !empty($config['single']) ? $this->{$model}->get_primary_profile() : $this->{$model}->get_by_id($id);
+
+		if (!$item && empty($config['single']))
+		{
+			show_404();
+		}
+
+		$this->render_form($module, $config, $item, 'view');
+	}
+
 	public function edit($module, $id)
 	{
 		$config = $this->get_module_config($module);
@@ -131,8 +152,10 @@ class Content extends Admin_Controller
 
 	protected function render_form($module, $config, $item, $mode)
 	{
+		$mode_label = $mode === 'create' ? 'Create ' : ($mode === 'view' ? 'View ' : 'Edit ');
+
 		$data = array(
-			'page_title' => ($mode === 'create' ? 'Create ' : 'Edit ').$config['title'],
+			'page_title' => $mode_label.$config['title'],
 			'module' => $module,
 			'mode' => $mode,
 			'config' => $config,
@@ -660,6 +683,7 @@ class Content extends Admin_Controller
 				'title' => 'Roles',
 				'model' => 'role_model',
 				'permission' => 'roles',
+				'allow_view' => TRUE,
 				'slug_field' => 'slug',
 				'slug_source' => 'name',
 				'list_method' => 'get_all_with_permission_summary',

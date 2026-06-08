@@ -1,5 +1,6 @@
 <?php
 $allow_create = !isset($config['allow_create']) || $config['allow_create'] !== FALSE;
+$allow_view = !empty($config['allow_view']);
 $allow_edit = !isset($config['allow_edit']) || $config['allow_edit'] !== FALSE;
 $allow_delete = !isset($config['allow_delete']) || $config['allow_delete'] !== FALSE;
 $columns = isset($config['columns']) ? $config['columns'] : array();
@@ -54,6 +55,9 @@ $columns = isset($config['columns']) ? $config['columns'] : array();
 						<?php endforeach; ?>
 						<td class="text-end">
 							<div class="d-inline-flex gap-2">
+								<?php if ($allow_view && !empty($item->id)): ?>
+									<a class="btn btn-sm btn-outline-primary" href="<?php echo site_url('admin/content/'.$module.'/view/'.$item->id); ?>">View</a>
+								<?php endif; ?>
 								<?php if ($allow_edit && !empty($item->id)): ?>
 									<a class="btn btn-sm btn-outline-secondary" href="<?php echo site_url('admin/content/'.$module.'/edit/'.$item->id); ?>">Edit</a>
 								<?php endif; ?>
