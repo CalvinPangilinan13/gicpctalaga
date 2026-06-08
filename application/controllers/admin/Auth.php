@@ -3,6 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * @property User_model $user_model
+ * @property Church_profile_model $church_profile_model
  * @property Activity_log_model $activity_log_model
  * @property Setting_model $setting_model
  */
@@ -10,6 +11,8 @@ class Auth extends CI_Controller
 {
 	/** @var User_model */
 	public $user_model;
+	/** @var Church_profile_model */
+	public $church_profile_model;
 	/** @var Activity_log_model */
 	public $activity_log_model;
 	/** @var Setting_model */
@@ -18,7 +21,7 @@ class Auth extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('user_model', 'activity_log_model', 'setting_model'));
+		$this->load->model(array('user_model', 'church_profile_model', 'activity_log_model', 'setting_model'));
 	}
 
 	public function login()
@@ -63,6 +66,7 @@ class Auth extends CI_Controller
 		}
 
 		$this->load->view('admin/auth/login', array(
+			'church_profile' => $this->church_profile_model->get_primary_profile(),
 			'settings' => $this->setting_model->get_keyed_settings(),
 		));
 	}

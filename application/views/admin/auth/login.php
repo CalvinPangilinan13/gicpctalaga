@@ -15,9 +15,9 @@
 <div class="auth-shell">
 	<div class="auth-card">
 		<div class="auth-brand">
-			<img src="<?php echo asset_url('images/logo.svg'); ?>" alt="GICP Talaga logo">
+			<img src="<?php echo media_url(isset($church_profile->logo) ? $church_profile->logo : '', 'images/logo.svg'); ?>" alt="<?php echo html_escape(isset($church_profile->short_name) ? $church_profile->short_name : 'GICP Talaga'); ?> logo">
 			<div>
-				<div class="auth-title">Grace in Christ</div>
+				<div class="auth-title"><?php echo html_escape(isset($church_profile->short_name) ? $church_profile->short_name : 'Grace in Christ'); ?></div>
 				<div class="text-muted">Church Website CMS</div>
 			</div>
 		</div>

@@ -1,8 +1,8 @@
 <aside class="admin-sidebar">
 	<div class="admin-sidebar-brand">
-		<img src="<?php echo asset_url('images/logo.svg'); ?>" alt="GICP Talaga logo">
+		<img src="<?php echo media_url(isset($church_profile->logo) ? $church_profile->logo : '', 'images/logo.svg'); ?>" alt="<?php echo html_escape(isset($church_profile->short_name) ? $church_profile->short_name : 'GICP Talaga'); ?> logo">
 		<div>
-			<h1 class="admin-sidebar-title">GICP Talaga</h1>
+			<h1 class="admin-sidebar-title"><?php echo html_escape(isset($church_profile->short_name) ? $church_profile->short_name : 'GICP Talaga'); ?></h1>
 			<p class="admin-sidebar-copy">Church Website CMS</p>
 		</div>
 	</div>

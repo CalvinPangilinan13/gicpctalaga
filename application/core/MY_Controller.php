@@ -109,6 +109,7 @@ class Site_Controller extends CI_Controller
  * @property CI_Session $session
  * @property User_model $user_model
  * @property Role_model $role_model
+ * @property Church_profile_model $church_profile_model
  * @property Setting_model $setting_model
  * @property Activity_log_model $activity_log_model
  */
@@ -118,6 +119,8 @@ class Admin_Controller extends CI_Controller
 	public $user_model;
 	/** @var Role_model */
 	public $role_model;
+	/** @var Church_profile_model */
+	public $church_profile_model;
 	/** @var Setting_model */
 	public $setting_model;
 	/** @var Activity_log_model */
@@ -128,13 +131,14 @@ class Admin_Controller extends CI_Controller
 	public function __construct()
 	{
 		parent::__construct();
-		$this->load->model(array('user_model', 'role_model'));
+		$this->load->model(array('user_model', 'role_model', 'church_profile_model'));
 		$this->ensure_authenticated();
 
 		$this->admin_user = $this->user_model->get_with_role((int) $this->session->userdata('user_id'));
 		$this->admin_data = array(
 			'admin_user' => $this->admin_user,
 			'admin_menu' => admin_navigation(),
+			'church_profile' => $this->church_profile_model->get_primary_profile(),
 			'settings' => $this->setting_model->get_keyed_settings(),
 		);
 	}
