@@ -37,18 +37,15 @@ body {
 }
 
 .admin-sidebar {
-	width: 19.5rem;
-	background: radial-gradient(circle at top left, rgba(199, 167, 86, 0.16) 0%, rgba(199, 167, 86, 0) 30%), linear-gradient(180deg, #081728 0%, #0d1f35 48%, #112845 100%);
+	width: 18rem;
+	background: linear-gradient(180deg, var(--admin-sidebar) 0%, var(--admin-sidebar-soft) 100%);
 	color: #fff;
-	padding: 1rem;
+	padding: 1.5rem 1rem;
 	position: sticky;
 	top: 0;
 	height: 100vh;
 	overflow-y: auto;
-	overflow-x: hidden;
-	box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.05);
-	scrollbar-width: thin;
-	scrollbar-color: rgba(255, 255, 255, 0.16) transparent;
+	box-shadow: none;
 }
 
 .admin-sidebar::-webkit-scrollbar {
@@ -61,12 +58,7 @@ body {
 }
 
 .admin-sidebar::before {
-	content: '';
-	position: absolute;
-	inset: 0 0 auto 0;
-	height: 16rem;
-	background: radial-gradient(circle at top left, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0) 62%);
-	pointer-events: none;
+	content: none;
 }
 
 .admin-sidebar-shell {
@@ -144,21 +136,17 @@ body {
 
 .admin-sidebar-brand {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: 0.9rem;
-	margin-bottom: 1rem;
-	position: relative;
-	z-index: 1;
+	margin-bottom: 2rem;
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .admin-sidebar-brand img {
-	width: 3.2rem;
-	height: 3.2rem;
+	width: 3rem;
+	height: 3rem;
 	border-radius: 1rem;
-	padding: 0.35rem;
-	background: rgba(255, 255, 255, 0.94);
-	box-shadow: 0 10px 22px rgba(6, 17, 31, 0.22);
-	flex-shrink: 0;
 }
 
 .admin-sidebar-eyebrow {
@@ -171,17 +159,15 @@ body {
 
 .admin-sidebar-title {
 	font-family: var(--font-heading);
-	font-size: 1.95rem;
-	line-height: 0.94;
+	font-size: 1.65rem;
+	line-height: 1;
 	margin: 0;
 }
 
 .admin-sidebar-copy {
-	font-size: 0.92rem;
-	line-height: 1.5;
-	color: rgba(255, 255, 255, 0.7);
+	font-size: 0.9rem;
+	color: rgba(255, 255, 255, 0.68);
 	margin: 0;
-	max-width: 15rem;
 }
 
 .admin-sidebar-stats {
@@ -416,30 +402,19 @@ body {
 	display: flex;
 	align-items: center;
 	gap: 0.85rem;
-	padding: 0.82rem 0.95rem 0.82rem 0.85rem;
-	border-radius: 1rem;
+	padding: 0.8rem 0.95rem;
+	border-radius: 0.9rem;
 	color: rgba(255, 255, 255, 0.82);
 	font-weight: 600;
 	text-decoration: none;
 	background: transparent;
 	border: 1px solid transparent;
-	position: relative;
-	overflow: hidden;
-	transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+	margin-bottom: 0.35rem;
+	transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease, color 0.2s ease;
 }
 
 .admin-nav-link::before {
-	content: '';
-	position: absolute;
-	left: 0.38rem;
-	top: 0.55rem;
-	bottom: 0.55rem;
-	width: 0.18rem;
-	border-radius: 999px;
-	background: linear-gradient(180deg, rgba(255, 226, 154, 1) 0%, rgba(199, 167, 86, 1) 100%);
-	opacity: 0;
-	transform: scaleY(0.35);
-	transition: opacity 0.2s ease, transform 0.2s ease;
+	content: none;
 }
 
 .admin-nav-link-icon {
@@ -470,10 +445,9 @@ body {
 
 .admin-nav-link:hover {
 	background: rgba(255, 255, 255, 0.08);
-	border-color: rgba(255, 255, 255, 0.08);
-	transform: translateX(3px);
+	border-color: transparent;
+	transform: none;
 	color: #fff;
-	box-shadow: 0 12px 18px rgba(0, 0, 0, 0.12);
 }
 
 .admin-nav-link:hover .admin-nav-link-icon,
@@ -488,15 +462,13 @@ body {
 }
 
 .admin-nav-link.active {
-	background: linear-gradient(135deg, rgba(199, 167, 86, 0.24) 0%, rgba(199, 167, 86, 0.08) 100%);
-	border-color: rgba(199, 167, 86, 0.36);
+	background: rgba(255, 255, 255, 0.1);
+	border-color: transparent;
 	color: #fff;
-	box-shadow: 0 14px 24px rgba(0, 0, 0, 0.18);
 }
 
 .admin-nav-link.active::before {
-	opacity: 1;
-	transform: scaleY(1);
+	content: none;
 }
 
 .admin-nav-link.active .admin-nav-link-icon {
@@ -792,36 +764,13 @@ body {
 }
 
 @media (max-width: 991.98px) {
-	body.sidebar-open {
-		overflow: hidden;
-	}
-
-	.admin-sidebar-backdrop {
-		display: block;
-	}
-
 	.admin-sidebar {
 		position: fixed;
-		top: 0.5rem;
-		left: 0.5rem;
-		width: min(20rem, calc(100vw - 1rem));
-		height: calc(100vh - 1rem);
-		border-radius: 1.5rem;
-		transform: translateX(calc(-100% - 1rem));
-		transition: transform 0.25s ease;
+		left: -18rem;
+		transition: left 0.25s ease;
 		z-index: 1200;
 	}
-
-	.admin-sidebar-footer-actions {
-		grid-template-columns: 1fr;
-	}
-
 	body.sidebar-open .admin-sidebar {
-		transform: translateX(0);
-	}
-
-	body.sidebar-open .admin-sidebar-backdrop {
-		opacity: 1;
-		pointer-events: auto;
+		left: 0;
 	}
 }
