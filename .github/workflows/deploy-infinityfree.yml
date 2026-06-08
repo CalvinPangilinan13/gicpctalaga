@@ -54,7 +54,7 @@ jobs:
           server: ftpupload.net
           username: ${{ env.FTP_USER }}
           password: ${{ env.FTP_PASS }}
-          server-dir: gicpcstaging.page.gd/htdocs/
+          server-dir: gicpcstaging/htdocs/
           exclude: |
             **/.git*
             **/.github/**
