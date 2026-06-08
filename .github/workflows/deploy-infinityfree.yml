@@ -4,12 +4,11 @@ on:
   push:
     branches:
       - main
-      - tbtayo
+      - staging
 
 env:
-  # Shared Account Credentials from your screenshots
-  FTP_USER: if0_42125686
-  FTP_PASS: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD || vars.FTP_PASSWORD || vars.INFINITYFREE_FTP_PASSWORD }}
+  FTP_USER: ${{ secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME }}
+  FTP_PASS: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
 
 jobs:
   ftp-deploy:
@@ -18,7 +17,8 @@ jobs:
     steps:
       - name: Validate FTP Secrets
         run: |
-          test -n "$FTP_PASS" || { echo "Missing FTP password. Please add your FTP password to GitHub Secrets."; exit 1; }
+          test -n "$FTP_USER" || { echo "Missing FTP username. Add FTP_USERNAME or INFINITYFREE_FTP_USERNAME to repository secrets."; exit 1; }
+          test -n "$FTP_PASS" || { echo "Missing FTP password. Add FTP_PASSWORD or INFINITYFREE_FTP_PASSWORD to repository secrets."; exit 1; }
 
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -48,7 +48,7 @@ jobs:
 
       # ✅ STAGING (gicpcstaging.page.gd)
       - name: FTP Deploy to Staging
-        if: github.ref == 'refs/heads/tbtayo'
+        if: github.ref == 'refs/heads/staging'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
