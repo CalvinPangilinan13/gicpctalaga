@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  FTP_DEPLOY_USERNAME: ${{ secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME }}
-  FTP_DEPLOY_PASSWORD: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
+  FTP_DEPLOY_USERNAME: ${{ secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME || vars.FTP_USERNAME || vars.INFINITYFREE_FTP_USERNAME }}
+  FTP_DEPLOY_PASSWORD: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD || vars.FTP_PASSWORD || vars.INFINITYFREE_FTP_PASSWORD }}
 
 jobs:
   ftp-deploy:
@@ -16,8 +16,8 @@ jobs:
     steps:
       - name: Validate FTP secrets
         run: |
-          test -n "$FTP_DEPLOY_USERNAME" || { echo "Missing FTP username secret. Set FTP_USERNAME or INFINITYFREE_FTP_USERNAME in GitHub Actions secrets."; exit 1; }
-          test -n "$FTP_DEPLOY_PASSWORD" || { echo "Missing FTP password secret. Set FTP_PASSWORD or INFINITYFREE_FTP_PASSWORD in GitHub Actions secrets."; exit 1; }
+          test -n "$FTP_DEPLOY_USERNAME" || { echo "Missing FTP username. Set FTP_USERNAME or INFINITYFREE_FTP_USERNAME in GitHub Actions secrets or variables."; exit 1; }
+          test -n "$FTP_DEPLOY_PASSWORD" || { echo "Missing FTP password. Set FTP_PASSWORD or INFINITYFREE_FTP_PASSWORD in GitHub Actions secrets or variables."; exit 1; }
 
       - name: Checkout Repository
         uses: actions/checkout@v5
