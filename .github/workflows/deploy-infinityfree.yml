@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Normalize deployment settings
+        id: deployment
         env:
           FTP_SERVER_PRIMARY: ${{ secrets.INFINITYFREE_FTP_SERVER }}
           FTP_SERVER_LEGACY: ${{ secrets.FTP_SERVER }}
@@ -34,27 +35,38 @@ jobs:
           ftp_username="${FTP_USERNAME_PRIMARY:-$FTP_USERNAME_LEGACY}"
           ftp_password="${FTP_PASSWORD_PRIMARY:-$FTP_PASSWORD_LEGACY}"
           ftp_server_dir="${FTP_SERVER_DIR_PRIMARY:-${FTP_SERVER_DIR_LEGACY:-/htdocs/}}"
+          db_port="${DB_PORT:-3306}"
 
           test -n "$ftp_username" || { echo "Missing FTP username secret (INFINITYFREE_FTP_USERNAME or FTP_USERNAME)"; exit 1; }
           test -n "$ftp_password" || { echo "Missing FTP password secret (INFINITYFREE_FTP_PASSWORD or FTP_PASSWORD)"; exit 1; }
-          test -n "$DB_HOST" || { echo "Missing INFINITYFREE_DB_HOST secret"; exit 1; }
-          test -n "$DB_NAME" || { echo "Missing INFINITYFREE_DB_NAME secret"; exit 1; }
-          test -n "$DB_USERNAME" || { echo "Missing INFINITYFREE_DB_USERNAME secret"; exit 1; }
-          test -n "$DB_PASSWORD" || { echo "Missing INFINITYFREE_DB_PASSWORD secret"; exit 1; }
 
-          echo "FTP_SERVER=$ftp_server" >> "$GITHUB_ENV"
-          echo "FTP_USERNAME=$ftp_username" >> "$GITHUB_ENV"
-          echo "FTP_PASSWORD=$ftp_password" >> "$GITHUB_ENV"
-          echo "FTP_SERVER_DIR=$ftp_server_dir" >> "$GITHUB_ENV"
-          echo "DB_PORT=${DB_PORT:-3306}" >> "$GITHUB_ENV"
+          has_db_config=false
+
+          if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_USERNAME" ] && [ -n "$DB_PASSWORD" ]; then
+            has_db_config=true
+          elif [ -n "$DB_HOST" ] || [ -n "$DB_NAME" ] || [ -n "$DB_USERNAME" ] || [ -n "$DB_PASSWORD" ]; then
+            echo "::warning::Incomplete INFINITYFREE_DB_* secrets detected. Skipping database.production.php generation."
+          else
+            echo "::warning::No INFINITYFREE_DB_* secrets detected. FTP deploy will continue, but the production database override will not be generated."
+          fi
+
+          {
+            echo "ftp_server=$ftp_server"
+            echo "ftp_username=$ftp_username"
+            echo "ftp_password=$ftp_password"
+            echo "ftp_server_dir=$ftp_server_dir"
+            echo "db_port=$db_port"
+            echo "has_db_config=$has_db_config"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Build production database override
+        if: steps.deployment.outputs.has_db_config == 'true'
         env:
           DB_HOST: ${{ secrets.INFINITYFREE_DB_HOST }}
           DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
           DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
           DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
-          DB_PORT: ${{ env.DB_PORT }}
+          DB_PORT: ${{ steps.deployment.outputs.db_port }}
         run: |
           php <<'PHP'
           <?php
@@ -72,12 +84,12 @@ jobs:
           PHP
 
       - name: FTP Deploy to InfinityFree
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ env.FTP_SERVER }}
-          username: ${{ env.FTP_USERNAME }}
-          password: ${{ env.FTP_PASSWORD }}
-          server-dir: ${{ env.FTP_SERVER_DIR }}
+          server: ${{ steps.deployment.outputs.ftp_server }}
+          username: ${{ steps.deployment.outputs.ftp_username }}
+          password: ${{ steps.deployment.outputs.ftp_password }}
+          server-dir: ${{ steps.deployment.outputs.ftp_server_dir }}
           exclude: |
             **/.git*
             **/.github/**

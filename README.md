@@ -74,10 +74,10 @@ InfinityFree does not provide a native GitHub deployment connection. This reposi
   - `INFINITYFREE_FTP_PASSWORD` or `FTP_PASSWORD`
   - `INFINITYFREE_FTP_SERVER` or `FTP_SERVER` (optional, defaults to `ftpupload.net`)
   - `INFINITYFREE_FTP_SERVER_DIR` or `FTP_SERVER_DIR` (optional, defaults to `/htdocs/`)
-  - `INFINITYFREE_DB_HOST`
-  - `INFINITYFREE_DB_NAME`
-  - `INFINITYFREE_DB_USERNAME`
-  - `INFINITYFREE_DB_PASSWORD`
+  - `INFINITYFREE_DB_HOST` (optional for deployment, required for the generated production DB config)
+  - `INFINITYFREE_DB_NAME` (optional for deployment, required for the generated production DB config)
+  - `INFINITYFREE_DB_USERNAME` (optional for deployment, required for the generated production DB config)
+  - `INFINITYFREE_DB_PASSWORD` (optional for deployment, required for the generated production DB config)
   - `INFINITYFREE_DB_PORT` (optional, defaults to `3306`)
 3. Keep the deploy target as `/htdocs/` if your InfinityFree domain details show `htdocs` as the directory. If InfinityFree shows a longer path like `/your-domain/htdocs/`, set that path in `INFINITYFREE_FTP_SERVER_DIR` or `FTP_SERVER_DIR`.
 4. Push your changes to `main`, or run the `Deploy to InfinityFree` workflow manually.
@@ -86,7 +86,7 @@ InfinityFree does not provide a native GitHub deployment connection. This reposi
 Notes:
 
 - `application/config/config.php` only loads Composer's autoloader when `vendor/autoload.php` exists, so this project does not require a Composer install step on InfinityFree.
-- The workflow now generates `application/config/database.production.php` during deployment, so the production database password does not need to be committed to the repository.
+- If the full `INFINITYFREE_DB_*` secret set is present, the workflow generates `application/config/database.production.php` during deployment so the production database password does not need to be committed to the repository.
 - If your older repository already uses `FTP_USERNAME` and `FTP_PASSWORD` secrets, this workflow accepts them without renaming.
 - After the first deploy, make sure `application/cache/`, `application/cache/sessions/`, `application/logs/`, and `uploads/` are writable on the hosting account.
 
