@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - tbtayo
+      - staging
 
 env:
   # Shared Account Credentials from your screenshots
