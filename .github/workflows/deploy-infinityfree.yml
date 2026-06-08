@@ -1,15 +1,13 @@
-name: 🚀 Deploy via FTP
+name: 🚀 Deploy Staging via FTP
 
 on:
   push:
     branches:
-      - main
       - staging
 
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
@@ -18,9 +16,14 @@ jobs:
         run: |
           echo "Branch: $GITHUB_REF"
 
-      # LIVE SITE
-      - name: FTP Deploy to Live
-        if: github.ref == 'refs/heads/main'
+      - name: Validate FTP Password
+        run: |
+          test -n "${{ secrets.FTP_PASSWORD }}" || {
+            echo "FTP_PASSWORD secret is missing";
+            exit 1;
+          }
+
+      - name: FTP Deploy to Staging
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
@@ -29,31 +32,6 @@ jobs:
           protocol: ftp
           port: 21
           server-dir: htdocs/
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            database/**
-            user_guide/**
-            user_guide_src/**
-            vendor/**
-            README.md
-            readme.rst
-            phpdoc.dist.xml
-            composer.json
-            composer.lock
-
-      # STAGING SITE
-      - name: FTP Deploy to Staging
-        if: github.ref == 'refs/heads/staging'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-        with:
-          server: ftpupload.net
-          username: if0_42125686
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          server-dir: gicpcstaging.page.gd/htdocs/
           exclude: |
             **/.git*
             **/.github/**
