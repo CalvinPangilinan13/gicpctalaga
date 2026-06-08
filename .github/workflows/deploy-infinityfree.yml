@@ -53,7 +53,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: gicpcstaging/htdocs/
+          server-dir: gicpcstaging.page.gd/htdocs/
           exclude: |
             **/.git*
             **/.github/**
