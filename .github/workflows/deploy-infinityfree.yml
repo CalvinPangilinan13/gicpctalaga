@@ -1,4 +1,4 @@
-name: Deploy InfinityFree
+name: 🚀 Deploy to InfinityFree
 
 on:
   push:
@@ -6,119 +6,39 @@ on:
       - staging
       - main
 
-concurrency:
-  group: deploy-${{ github.ref_name }}
-  cancel-in-progress: true
-
 jobs:
   deploy-staging:
-    if: github.ref_name == 'staging'
+    if: github.ref == 'refs/heads/staging'
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Show Branch
-        run: |
-          echo "Branch: $GITHUB_REF"
-          echo "Deploy target: gicpctalaga.page.gd"
-
-      - name: Validate Staging FTP Settings
-        env:
-          FTP_USERNAME: ${{ secrets.STAGING_FTP_USERNAME || secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME || 'if0_42125686' }}
-          FTP_PASSWORD: ${{ secrets.STAGING_FTP_PASSWORD || secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ vars.STAGING_FTP_SERVER_DIR }}
-        run: |
-          test -n "$FTP_USERNAME" || {
-            echo "Staging FTP username is missing";
-            exit 1;
-          }
-
-          test -n "$FTP_PASSWORD" || {
-            echo "Staging FTP password is missing";
-            exit 1;
-          }
-
-          test -n "$FTP_SERVER_DIR" || {
-            echo "STAGING_FTP_SERVER_DIR repository variable is missing";
-            exit 1;
-          }
-
-      - name: FTP Deploy to Staging
+      - name: Deploy to Staging
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ secrets.STAGING_FTP_USERNAME || secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME || 'if0_42125686' }}
-          password: ${{ secrets.STAGING_FTP_PASSWORD || secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
+          username: ${{ secrets.STAGING_FTP_USERNAME }}
+          password: ${{ secrets.STAGING_FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: ${{ vars.STAGING_FTP_SERVER_DIR }}
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            database/**
-            user_guide/**
-            user_guide_src/**
-            vendor/**
-            README.md
-            readme.rst
-            phpdoc.dist.xml
-            composer.json
-            composer.lock
+          server-dir: htdocs/
 
   deploy-live:
-    if: github.ref_name == 'main'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Show Branch
-        run: |
-          echo "Branch: $GITHUB_REF"
-          echo "Deploy target: graceinchristpc.online"
-
-      - name: Validate Live FTP Settings
-        env:
-          FTP_USERNAME: ${{ secrets.LIVE_FTP_USERNAME || secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME || 'if0_42125686' }}
-          FTP_PASSWORD: ${{ secrets.LIVE_FTP_PASSWORD || secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
-          FTP_SERVER_DIR: ${{ vars.LIVE_FTP_SERVER_DIR || 'htdocs/' }}
-        run: |
-          test -n "$FTP_USERNAME" || {
-            echo "Live FTP username is missing";
-            exit 1;
-          }
-
-          test -n "$FTP_PASSWORD" || {
-            echo "Live FTP password is missing";
-            exit 1;
-          }
-
-          test -n "$FTP_SERVER_DIR" || {
-            echo "Live FTP server directory is missing";
-            exit 1;
-          }
-
-      - name: FTP Deploy to Live
+      - name: Deploy to Live
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ secrets.LIVE_FTP_USERNAME || secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME || 'if0_42125686' }}
-          password: ${{ secrets.LIVE_FTP_PASSWORD || secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
+          username: ${{ secrets.LIVE_FTP_USERNAME }}
+          password: ${{ secrets.LIVE_FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: ${{ vars.LIVE_FTP_SERVER_DIR || 'htdocs/' }}
-          exclude: |
-            **/.git*
-            **/.github/**
-            **/node_modules/**
-            database/**
-            user_guide/**
-            user_guide_src/**
-            vendor/**
-            README.md
-            readme.rst
-            phpdoc.dist.xml
-            composer.json
-            composer.lock
+          server-dir: /graceinchristpc.online/htdocs/
