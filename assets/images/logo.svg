@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Grace in Christ Presbyterian Church Logo</title>
+  <desc id="desc">A blue and gold church crest with a cross and open Bible.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#123d73"/>
+      <stop offset="100%" stop-color="#0d2b50"/>
+    </linearGradient>
+  </defs>
+  <rect width="240" height="240" rx="48" fill="url(#bg)"/>
+  <path d="M120 42 170 72v56c0 32-18 61-50 78-32-17-50-46-50-78V72l50-30Z" fill="none" stroke="#c7a756" stroke-width="10"/>
+  <path d="M120 78v64M88 110h64" stroke="#f5f0de" stroke-width="12" stroke-linecap="round"/>
+  <path d="M82 162c18-8 39-12 58-12s40 4 18 12v16c-18-8-39-12-58-12s-40 4-58 12v-16c18-8 39-12 58-12Z" fill="#f5f0de" opacity="0.92" transform="translate(38 -4) scale(0.78)"/>
+</svg>

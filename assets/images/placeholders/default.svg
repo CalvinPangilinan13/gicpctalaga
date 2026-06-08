@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 480">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#123d73" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#c7a756" stop-opacity="0.22"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" rx="32" fill="url(#g)"/>
+  <g fill="none" stroke="#123d73" stroke-width="12" opacity="0.55">
+    <path d="M320 118v116"/>
+    <path d="M262 176h116"/>
+  </g>
+  <text x="50%" y="78%" text-anchor="middle" font-family="Georgia, serif" font-size="48" fill="#123d73" opacity="0.68">GICP Talaga</text>
+</svg>
