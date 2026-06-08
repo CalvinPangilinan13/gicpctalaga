@@ -80,7 +80,10 @@ if (isset($_SERVER['HTTP_HOST']))
     $current_host = strtolower((string) preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']));
 }
 
-$is_local_environment = ($current_host === '' || in_array($current_host, array('localhost', '127.0.0.1', '::1'), TRUE));
+$normalized_host = preg_replace('/^www\./', '', $current_host);
+$live_hosts = array('graceinchristpc.online');
+
+$is_local_environment = ($normalized_host === '' || in_array($normalized_host, array('localhost', '127.0.0.1', '::1'), TRUE));
 
 $db_config = $is_local_environment
     ? array(
@@ -94,7 +97,9 @@ $db_config = $is_local_environment
         'hostname' => 'sql308.infinityfree.com',
         'username' => 'if0_42125686',
         'password' => '6ogMVNzeTDmbl',
-        'database' => 'if0_42125686_gicpctalaga',
+        'database' => in_array($normalized_host, $live_hosts, TRUE)
+            ? 'if0_42125686_gicpclive'
+            : 'if0_42125686_gicpctalaga',
         'port' => 3306,
     );
 
