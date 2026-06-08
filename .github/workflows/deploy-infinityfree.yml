@@ -6,31 +6,28 @@ on:
       - main
       - staging
 
-env:
-  # Shared Account Credentials from your screenshots
-  FTP_USER: if0_42125686
-  FTP_PASS: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD || vars.FTP_PASSWORD || vars.INFINITYFREE_FTP_PASSWORD }}
-
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Validate FTP Secrets
-        run: |
-          test -n "$FTP_PASS" || { echo "Missing FTP password. Please add your FTP password to GitHub Secrets."; exit 1; }
-
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      # ✅ PRODUCTION / LIVE (gicpctalaga.page.gd)
+      - name: Show Branch
+        run: |
+          echo "Branch: $GITHUB_REF"
+
+      # LIVE SITE
       - name: FTP Deploy to Live
         if: github.ref == 'refs/heads/main'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ env.FTP_USER }}
-          password: ${{ env.FTP_PASS }}
+          username: if0_42125686
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
           server-dir: htdocs/
           exclude: |
             **/.git*
@@ -46,14 +43,16 @@ jobs:
             composer.json
             composer.lock
 
-      # ✅ STAGING (gicpcstaging.page.gd)
+      # STAGING SITE
       - name: FTP Deploy to Staging
         if: github.ref == 'refs/heads/staging'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ env.FTP_USER }}
-          password: ${{ env.FTP_PASS }}
+          username: if0_42125686
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
           server-dir: gicpcstaging/htdocs/
           exclude: |
             **/.git*
