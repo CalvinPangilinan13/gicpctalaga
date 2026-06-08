@@ -96,3 +96,15 @@ $db['default'] = array(
     'save_queries' => TRUE,
     'port' => 3307
 );
+
+$production_override = APPPATH.'config/database.production.php';
+
+if (file_exists($production_override))
+{
+    $production_db = require $production_override;
+
+    if (is_array($production_db))
+    {
+        $db['default'] = array_merge($db['default'], $production_db);
+    }
+}

@@ -1,0 +1,78 @@
+name: Deploy to InfinityFree
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate required deployment secrets
+        env:
+          FTP_SERVER: ${{ secrets.INFINITYFREE_FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.INFINITYFREE_FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.INFINITYFREE_FTP_PASSWORD }}
+          DB_HOST: ${{ secrets.INFINITYFREE_DB_HOST }}
+          DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
+          DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
+        run: |
+          test -n "$FTP_SERVER" || { echo "Missing INFINITYFREE_FTP_SERVER secret"; exit 1; }
+          test -n "$FTP_USERNAME" || { echo "Missing INFINITYFREE_FTP_USERNAME secret"; exit 1; }
+          test -n "$FTP_PASSWORD" || { echo "Missing INFINITYFREE_FTP_PASSWORD secret"; exit 1; }
+          test -n "$DB_HOST" || { echo "Missing INFINITYFREE_DB_HOST secret"; exit 1; }
+          test -n "$DB_NAME" || { echo "Missing INFINITYFREE_DB_NAME secret"; exit 1; }
+          test -n "$DB_USERNAME" || { echo "Missing INFINITYFREE_DB_USERNAME secret"; exit 1; }
+          test -n "$DB_PASSWORD" || { echo "Missing INFINITYFREE_DB_PASSWORD secret"; exit 1; }
+
+      - name: Build production database override
+        env:
+          DB_HOST: ${{ secrets.INFINITYFREE_DB_HOST }}
+          DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
+          DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
+          DB_PORT: ${{ secrets.INFINITYFREE_DB_PORT }}
+        run: |
+          php <<'PHP'
+          <?php
+          $dbConfig = array(
+              'hostname' => getenv('DB_HOST'),
+              'username' => getenv('DB_USERNAME'),
+              'password' => getenv('DB_PASSWORD'),
+              'database' => getenv('DB_NAME'),
+              'port' => (int) (getenv('DB_PORT') ?: 3306),
+          );
+
+          $content = "<?php\ndefined('BASEPATH') OR exit('No direct script access allowed');\n\nreturn ".var_export($dbConfig, TRUE).";\n";
+
+          file_put_contents('application/config/database.production.php', $content);
+          PHP
+
+      - name: Deploy files to InfinityFree
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.INFINITYFREE_FTP_SERVER }}
+          username: ${{ secrets.INFINITYFREE_FTP_USERNAME }}
+          password: ${{ secrets.INFINITYFREE_FTP_PASSWORD }}
+          server-dir: /htdocs/
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            database/**
+            user_guide/**
+            user_guide_src/**
+            vendor/**
+            README.md
+            readme.rst
+            phpdoc.dist.xml
+            composer.json
+            composer.lock

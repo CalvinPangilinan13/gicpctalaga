@@ -64,6 +64,30 @@ Change the seeded passwords immediately after first login.
 - For production, replace the sample encryption key in `application/config/config.php` with a unique secret.
 - For production, replace seeded sample content and graphics with real church media, and switch default credentials before launch.
 
+## GitHub to InfinityFree Deployment
+
+InfinityFree does not provide a native GitHub deployment connection. This repository now includes `.github/workflows/deploy-infinityfree.yml`, which deploys the app to InfinityFree over FTP whenever you push to `main` or `master`, and it can also be run manually from the Actions tab.
+
+1. In the InfinityFree control panel, open your hosting account FTP details and copy the FTP host, FTP username, and FTP password.
+2. In your GitHub repository, open `Settings > Secrets and variables > Actions` and create these repository secrets:
+  - `INFINITYFREE_FTP_SERVER`
+  - `INFINITYFREE_FTP_USERNAME`
+  - `INFINITYFREE_FTP_PASSWORD`
+  - `INFINITYFREE_DB_HOST`
+  - `INFINITYFREE_DB_NAME`
+  - `INFINITYFREE_DB_USERNAME`
+  - `INFINITYFREE_DB_PASSWORD`
+  - `INFINITYFREE_DB_PORT` (optional, defaults to `3306`)
+3. Keep the deploy target as `/htdocs/`, which matches the domain directory shown in InfinityFree for this account.
+4. Push your changes to `main` or `master`, or run the `Deploy to InfinityFree` workflow manually.
+5. Import `database/gicpctalaga.sql` into your InfinityFree MySQL database separately, because the workflow deploys files only.
+
+Notes:
+
+- `application/config/config.php` only loads Composer's autoloader when `vendor/autoload.php` exists, so this project does not require a Composer install step on InfinityFree.
+- The workflow now generates `application/config/database.production.php` during deployment, so the production database password does not need to be committed to the repository.
+- After the first deploy, make sure `application/cache/`, `application/cache/sessions/`, `application/logs/`, and `uploads/` are writable on the hosting account.
+
 ## CMS Modules
 
 - Church Profile
