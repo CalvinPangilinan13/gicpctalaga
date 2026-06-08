@@ -1,4 +1,4 @@
-name: 🚀 Deploy to InfinityFree
+name: 🚀 Deploy via FTP
 
 on:
   push:
@@ -7,38 +7,69 @@ on:
       - main
 
 jobs:
-  deploy-staging:
-    if: github.ref == 'refs/heads/staging'
+  ftp-deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v5
 
-      - name: Deploy to Staging
+      - name: Show Branch
+        run: |
+          echo "Branch: $GITHUB_REF"
+
+      - name: Validate FTP Password
+        run: |
+          test -n "${{ secrets.FTP_PASSWORD }}" || {
+            echo "FTP_PASSWORD secret is missing";
+            exit 1;
+          }
+
+      # 1. DEPLOY TO STAGING (Runs only on push to the 'staging' branch)
+      - name: FTP Deploy to Staging
+        if: github.ref == 'refs/heads/staging'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ secrets.STAGING_FTP_USERNAME }}
-          password: ${{ secrets.STAGING_FTP_PASSWORD }}
+          username: if0_42125686
+          password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
           server-dir: htdocs/
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            database/**
+            user_guide/**
+            user_guide_src/**
+            vendor/**
+            README.md
+            readme.rst
+            phpdoc.dist.xml
+            composer.json
+            composer.lock
 
-  deploy-live:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v5
-
-      - name: Deploy to Live
+      # 2. DEPLOY TO MAIN (Runs only on push to the 'main' branch)
+      - name: FTP Deploy to Main
+        if: github.ref == 'refs/heads/main'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ secrets.LIVE_FTP_USERNAME }}
-          password: ${{ secrets.LIVE_FTP_PASSWORD }}
+          username: if0_42125686
+          password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
           server-dir: /graceinchristpc.online/htdocs/
+          exclude: |
+            **/.git*
+            **/.github/**
+            **/node_modules/**
+            database/**
+            user_guide/**
+            user_guide_src/**
+            vendor/**
+            README.md
+            readme.rst
+            phpdoc.dist.xml
+            composer.json
+            composer.lock
