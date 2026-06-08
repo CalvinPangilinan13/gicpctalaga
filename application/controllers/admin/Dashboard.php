@@ -60,26 +60,53 @@ class Dashboard extends Admin_Controller
 	public function index()
 	{
 		$this->authorize_admin_access('dashboard');
+		$stat_definitions = array(
+			array('permission' => 'pastors', 'label' => 'Pastors', 'value' => $this->pastor_model->count_all(), 'icon' => 'bi-people'),
+			array('permission' => 'ministries', 'label' => 'Ministries', 'value' => $this->ministry_model->count_all(), 'icon' => 'bi-grid'),
+			array('permission' => 'sermons', 'label' => 'Sermons', 'value' => $this->sermon_model->count_all(), 'icon' => 'bi-mic'),
+			array('permission' => 'events', 'label' => 'Events', 'value' => $this->event_model->count_all(), 'icon' => 'bi-calendar-event'),
+			array('permission' => 'announcements', 'label' => 'Announcements', 'value' => $this->announcement_model->count_all(), 'icon' => 'bi-megaphone'),
+			array('permission' => 'news_updates', 'label' => 'News Posts', 'value' => $this->news_update_model->count_all(), 'icon' => 'bi-newspaper'),
+			array('permission' => 'galleries', 'label' => 'Gallery Albums', 'value' => $this->gallery_model->count_all(), 'icon' => 'bi-images'),
+			array('permission' => 'users', 'label' => 'Users', 'value' => $this->user_model->count_all(), 'icon' => 'bi-person-gear'),
+		);
+		$stats = array();
+
+		foreach ($stat_definitions as $stat)
+		{
+			if ($this->has_admin_access($stat['permission']))
+			{
+				$stats[] = array(
+					'label' => $stat['label'],
+					'value' => $stat['value'],
+					'icon' => $stat['icon'],
+				);
+			}
+		}
+
+		$can_view_activity_logs = $this->has_admin_access('activity_logs');
+		$can_view_events = $this->has_admin_access('events');
+		$can_view_prayer_requests = $this->has_admin_access('prayer_requests');
+		$can_view_contact_messages = $this->has_admin_access('contact_messages');
+		$can_view_event_registrations = $this->has_admin_access('event_registrations');
+		$can_view_newsletter_subscriptions = $this->has_admin_access('newsletter_subscriptions');
 
 		$data = array(
 			'page_title' => 'Dashboard',
-			'stats' => array(
-				array('label' => 'Pastors', 'value' => $this->pastor_model->count_all(), 'icon' => 'bi-people'),
-				array('label' => 'Ministries', 'value' => $this->ministry_model->count_all(), 'icon' => 'bi-grid'),
-				array('label' => 'Sermons', 'value' => $this->sermon_model->count_all(), 'icon' => 'bi-mic'),
-				array('label' => 'Events', 'value' => $this->event_model->count_all(), 'icon' => 'bi-calendar-event'),
-				array('label' => 'Announcements', 'value' => $this->announcement_model->count_all(), 'icon' => 'bi-megaphone'),
-				array('label' => 'News Posts', 'value' => $this->news_update_model->count_all(), 'icon' => 'bi-newspaper'),
-				array('label' => 'Gallery Albums', 'value' => $this->gallery_model->count_all(), 'icon' => 'bi-images'),
-				array('label' => 'Users', 'value' => $this->user_model->count_all(), 'icon' => 'bi-person-gear'),
-			),
+			'stats' => $stats,
 			'quick_links' => isset($this->admin_data['admin_menu']) ? $this->admin_data['admin_menu'] : admin_navigation(),
-			'latest_activities' => $this->activity_log_model->get_recent(8),
-			'upcoming_events' => $this->event_model->get_upcoming(5),
-			'pending_requests' => $this->prayer_request_model->get_latest(5),
-			'new_messages' => $this->contact_message_model->get_latest(5),
-			'registration_count' => $this->event_registration_model->count_all(),
-			'subscription_count' => $this->newsletter_subscription_model->count_all(),
+			'can_view_activity_logs' => $can_view_activity_logs,
+			'can_view_events' => $can_view_events,
+			'can_view_prayer_requests' => $can_view_prayer_requests,
+			'can_view_contact_messages' => $can_view_contact_messages,
+			'can_view_event_registrations' => $can_view_event_registrations,
+			'can_view_newsletter_subscriptions' => $can_view_newsletter_subscriptions,
+			'latest_activities' => $can_view_activity_logs ? $this->activity_log_model->get_recent(8) : array(),
+			'upcoming_events' => $can_view_events ? $this->event_model->get_upcoming(5) : array(),
+			'pending_requests' => $can_view_prayer_requests ? $this->prayer_request_model->get_latest(5) : array(),
+			'new_messages' => $can_view_contact_messages ? $this->contact_message_model->get_latest(5) : array(),
+			'registration_count' => $can_view_event_registrations ? $this->event_registration_model->count_all() : 0,
+			'subscription_count' => $can_view_newsletter_subscriptions ? $this->newsletter_subscription_model->count_all() : 0,
 		);
 
 		$this->render('admin/dashboard/index', $data);
