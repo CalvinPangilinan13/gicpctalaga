@@ -66,28 +66,20 @@ Change the seeded passwords immediately after first login.
 
 ## GitHub to InfinityFree Deployment
 
-InfinityFree does not provide a native GitHub deployment connection. This repository now includes `.github/workflows/deploy-infinityfree.yml`, which deploys the app to InfinityFree over FTP whenever you push to `main`, and it can also be run manually from the Actions tab.
+InfinityFree does not provide a native GitHub deployment connection. This repository now includes `.github/workflows/deploy-infinityfree.yml`, which deploys the app to InfinityFree over FTP whenever you push to `main`.
 
-1. In the InfinityFree control panel, open your hosting account FTP details and copy the FTP username and FTP password. The workflow defaults the FTP host to `ftpupload.net`, which matches the usual InfinityFree setup.
+1. In the InfinityFree control panel, open your hosting account FTP details and copy the FTP username and FTP password.
 2. In your GitHub repository, open `Settings > Secrets and variables > Actions` and create these repository secrets:
-  - `INFINITYFREE_FTP_USERNAME` or `FTP_USERNAME`
-  - `INFINITYFREE_FTP_PASSWORD` or `FTP_PASSWORD`
-  - `INFINITYFREE_FTP_SERVER` or `FTP_SERVER` (optional, defaults to `ftpupload.net`)
-  - `INFINITYFREE_FTP_SERVER_DIR` or `FTP_SERVER_DIR` (optional, defaults to `/htdocs/`)
-  - `INFINITYFREE_DB_HOST` (optional for deployment, required for the generated production DB config)
-  - `INFINITYFREE_DB_NAME` (optional for deployment, required for the generated production DB config)
-  - `INFINITYFREE_DB_USERNAME` (optional for deployment, required for the generated production DB config)
-  - `INFINITYFREE_DB_PASSWORD` (optional for deployment, required for the generated production DB config)
-  - `INFINITYFREE_DB_PORT` (optional, defaults to `3306`)
-3. Keep the deploy target as `/htdocs/` if your InfinityFree domain details show `htdocs` as the directory. If InfinityFree shows a longer path like `/your-domain/htdocs/`, set that path in `INFINITYFREE_FTP_SERVER_DIR` or `FTP_SERVER_DIR`.
-4. Push your changes to `main`, or run the `Deploy to InfinityFree` workflow manually.
+  - `FTP_USERNAME`
+  - `FTP_PASSWORD`
+3. The workflow deploys to `ftpupload.net` and uploads this project into `/htdocs/`.
+4. Push your changes to `main` to trigger the deployment.
 5. Import `database/gicpctalaga.sql` into your InfinityFree MySQL database separately, because the workflow deploys files only.
 
 Notes:
 
 - `application/config/config.php` only loads Composer's autoloader when `vendor/autoload.php` exists, so this project does not require a Composer install step on InfinityFree.
-- If the full `INFINITYFREE_DB_*` secret set is present, the workflow generates `application/config/database.production.php` during deployment so the production database password does not need to be committed to the repository.
-- If your older repository already uses `FTP_USERNAME` and `FTP_PASSWORD` secrets, this workflow accepts them without renaming.
+- `application/config/database.php` now handles the InfinityFree database connection directly for non-local hosts.
 - After the first deploy, make sure `application/cache/`, `application/cache/sessions/`, `application/logs/`, and `uploads/` are writable on the hosting account.
 
 ## CMS Modules

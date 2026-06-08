@@ -1,10 +1,9 @@
-name: Deploy to InfinityFree
+name: Deploy via FTP
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   ftp-deploy:
@@ -12,84 +11,16 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
-      - name: Normalize deployment settings
-        id: deployment
-        env:
-          FTP_SERVER_PRIMARY: ${{ secrets.INFINITYFREE_FTP_SERVER }}
-          FTP_SERVER_LEGACY: ${{ secrets.FTP_SERVER }}
-          FTP_USERNAME_PRIMARY: ${{ secrets.INFINITYFREE_FTP_USERNAME }}
-          FTP_USERNAME_LEGACY: ${{ secrets.FTP_USERNAME }}
-          FTP_PASSWORD_PRIMARY: ${{ secrets.INFINITYFREE_FTP_PASSWORD }}
-          FTP_PASSWORD_LEGACY: ${{ secrets.FTP_PASSWORD }}
-          FTP_SERVER_DIR_PRIMARY: ${{ secrets.INFINITYFREE_FTP_SERVER_DIR }}
-          FTP_SERVER_DIR_LEGACY: ${{ secrets.FTP_SERVER_DIR }}
-          DB_HOST: ${{ secrets.INFINITYFREE_DB_HOST }}
-          DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
-          DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
-          DB_PORT: ${{ secrets.INFINITYFREE_DB_PORT }}
-        run: |
-          ftp_server="${FTP_SERVER_PRIMARY:-${FTP_SERVER_LEGACY:-ftpupload.net}}"
-          ftp_username="${FTP_USERNAME_PRIMARY:-$FTP_USERNAME_LEGACY}"
-          ftp_password="${FTP_PASSWORD_PRIMARY:-$FTP_PASSWORD_LEGACY}"
-          ftp_server_dir="${FTP_SERVER_DIR_PRIMARY:-${FTP_SERVER_DIR_LEGACY:-/htdocs/}}"
-          db_port="${DB_PORT:-3306}"
-
-          test -n "$ftp_username" || { echo "Missing FTP username secret (INFINITYFREE_FTP_USERNAME or FTP_USERNAME)"; exit 1; }
-          test -n "$ftp_password" || { echo "Missing FTP password secret (INFINITYFREE_FTP_PASSWORD or FTP_PASSWORD)"; exit 1; }
-
-          has_db_config=false
-
-          if [ -n "$DB_HOST" ] && [ -n "$DB_NAME" ] && [ -n "$DB_USERNAME" ] && [ -n "$DB_PASSWORD" ]; then
-            has_db_config=true
-          elif [ -n "$DB_HOST" ] || [ -n "$DB_NAME" ] || [ -n "$DB_USERNAME" ] || [ -n "$DB_PASSWORD" ]; then
-            echo "::warning::Incomplete INFINITYFREE_DB_* secrets detected. Skipping database.production.php generation."
-          else
-            echo "::warning::No INFINITYFREE_DB_* secrets detected. FTP deploy will continue, but the production database override will not be generated."
-          fi
-
-          {
-            echo "ftp_server=$ftp_server"
-            echo "ftp_username=$ftp_username"
-            echo "ftp_password=$ftp_password"
-            echo "ftp_server_dir=$ftp_server_dir"
-            echo "db_port=$db_port"
-            echo "has_db_config=$has_db_config"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Build production database override
-        if: steps.deployment.outputs.has_db_config == 'true'
-        env:
-          DB_HOST: ${{ secrets.INFINITYFREE_DB_HOST }}
-          DB_NAME: ${{ secrets.INFINITYFREE_DB_NAME }}
-          DB_USERNAME: ${{ secrets.INFINITYFREE_DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.INFINITYFREE_DB_PASSWORD }}
-          DB_PORT: ${{ steps.deployment.outputs.db_port }}
-        run: |
-          php <<'PHP'
-          <?php
-          $dbConfig = array(
-              'hostname' => getenv('DB_HOST'),
-              'username' => getenv('DB_USERNAME'),
-              'password' => getenv('DB_PASSWORD'),
-              'database' => getenv('DB_NAME'),
-              'port' => (int) (getenv('DB_PORT') ?: 3306),
-          );
-
-          $content = "<?php\ndefined('BASEPATH') OR exit('No direct script access allowed');\n\nreturn ".var_export($dbConfig, TRUE).";\n";
-
-          file_put_contents('application/config/database.production.php', $content);
-          PHP
-
-      - name: FTP Deploy to InfinityFree
+      - name: FTP Deploy to gicpctalaga.page.gd
+        if: github.ref == 'refs/heads/main'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ${{ steps.deployment.outputs.ftp_server }}
-          username: ${{ steps.deployment.outputs.ftp_username }}
-          password: ${{ steps.deployment.outputs.ftp_password }}
-          server-dir: ${{ steps.deployment.outputs.ftp_server_dir }}
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /htdocs/
           exclude: |
             **/.git*
             **/.github/**
