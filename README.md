@@ -70,8 +70,8 @@ InfinityFree does not provide a native GitHub deployment connection. This reposi
 
 1. In the InfinityFree control panel, open your hosting account FTP details and copy the FTP username and FTP password.
 2. In your GitHub repository, open `Settings > Secrets and variables > Actions` and create these repository secrets:
-  - `FTP_USERNAME`
-  - `FTP_PASSWORD`
+  - `FTP_USERNAME` or `INFINITYFREE_FTP_USERNAME`
+  - `FTP_PASSWORD` or `INFINITYFREE_FTP_PASSWORD`
 3. The workflow deploys to `ftpupload.net` and uploads this project into `/htdocs/`.
 4. Push your changes to `main` to trigger the deployment.
 5. Import `database/gicpctalaga.sql` into your InfinityFree MySQL database separately, because the workflow deploys files only.

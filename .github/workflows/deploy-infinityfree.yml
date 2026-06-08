@@ -5,21 +5,30 @@ on:
     branches:
       - main
 
+env:
+  FTP_DEPLOY_USERNAME: ${{ secrets.FTP_USERNAME || secrets.INFINITYFREE_FTP_USERNAME }}
+  FTP_DEPLOY_PASSWORD: ${{ secrets.FTP_PASSWORD || secrets.INFINITYFREE_FTP_PASSWORD }}
+
 jobs:
   ftp-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate FTP secrets
+        run: |
+          test -n "$FTP_DEPLOY_USERNAME" || { echo "Missing FTP username secret. Set FTP_USERNAME or INFINITYFREE_FTP_USERNAME in GitHub Actions secrets."; exit 1; }
+          test -n "$FTP_DEPLOY_PASSWORD" || { echo "Missing FTP password secret. Set FTP_PASSWORD or INFINITYFREE_FTP_PASSWORD in GitHub Actions secrets."; exit 1; }
+
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: FTP Deploy to gicpctalaga.page.gd
         if: github.ref == 'refs/heads/main'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftpupload.net
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
+          username: ${{ env.FTP_DEPLOY_USERNAME }}
+          password: ${{ env.FTP_DEPLOY_PASSWORD }}
           server-dir: /htdocs/
           exclude: |
             **/.git*
