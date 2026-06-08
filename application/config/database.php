@@ -73,13 +73,37 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $active_group = 'default';
 $query_builder = TRUE;
 
+$current_host = '';
+
+if (isset($_SERVER['HTTP_HOST']))
+{
+    $current_host = strtolower((string) preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST']));
+}
+
+$is_local_environment = ($current_host === '' || in_array($current_host, array('localhost', '127.0.0.1', '::1'), TRUE));
+
+$db_config = $is_local_environment
+    ? array(
+        'hostname' => 'localhost',
+        'username' => 'root',
+        'password' => 'root',
+        'database' => 'gicpctalaga',
+        'port' => 3307,
+    )
+    : array(
+        'hostname' => 'sql308.infinityfree.com',
+        'username' => 'if0_42125686',
+        'password' => '6ogMVNzeTDmbl',
+        'database' => 'if0_42125686_gicpctalaga',
+        'port' => 3306,
+    );
 
 $db['default'] = array(
     'dsn'      => '',
-    'hostname' => 'localhost',
-    'username' => 'root',
-    'password' => 'root',
-    'database' => 'gicpctalaga',
+    'hostname' => $db_config['hostname'],
+    'username' => $db_config['username'],
+    'password' => $db_config['password'],
+    'database' => $db_config['database'],
     'dbdriver' => 'mysqli',
     'dbprefix' => '',
     'pconnect' => FALSE,
@@ -94,17 +118,5 @@ $db['default'] = array(
     'stricton' => TRUE,
     'failover' => array(),
     'save_queries' => TRUE,
-    'port' => 3307
+    'port' => $db_config['port']
 );
-
-$production_override = APPPATH.'config/database.production.php';
-
-if (file_exists($production_override))
-{
-    $production_db = require $production_override;
-
-    if (is_array($production_db))
-    {
-        $db['default'] = array_merge($db['default'], $production_db);
-    }
-}
