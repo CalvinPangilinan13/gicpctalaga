@@ -80,6 +80,7 @@ $route['admin/reset-password/(:any)'] = 'admin/auth/reset_password/$1';
 $route['admin/change-password'] = 'admin/auth/change_password';
 $route['admin/content'] = 'admin/content/index';
 $route['admin/content/(:any)'] = 'admin/content/index/$1';
+$route['admin/content/(:any)/view/(:num)'] = 'admin/content/view/$1/$2';
 $route['admin/content/(:any)/create'] = 'admin/content/create/$1';
 $route['admin/content/(:any)/edit/(:num)'] = 'admin/content/edit/$1/$2';
 $route['admin/content/(:any)/delete/(:num)'] = 'admin/content/delete/$1/$2';

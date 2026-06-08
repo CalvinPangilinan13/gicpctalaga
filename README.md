@@ -66,20 +66,26 @@ Change the seeded passwords immediately after first login.
 
 ## GitHub to InfinityFree Deployment
 
-InfinityFree does not provide a native GitHub deployment connection. This repository now includes `.github/workflows/deploy-infinityfree.yml`, which deploys the app to InfinityFree over FTP whenever you push to `main`.
+InfinityFree does not provide a native GitHub deployment connection. This repository includes `.github/workflows/deploy-infinityfree.yml`, which now deploys each branch to its own InfinityFree target:
+
+- `staging` deploys to `gicpctalaga.page.gd`
+- `main` deploys to `graceinchristpc.online`
 
 1. In the InfinityFree control panel, open your hosting account FTP details and copy the FTP username and FTP password.
 2. In your GitHub repository, open `Settings > Secrets and variables > Actions` and create these repository secrets:
-  - `FTP_USERNAME` or `INFINITYFREE_FTP_USERNAME`
-  - `FTP_PASSWORD` or `INFINITYFREE_FTP_PASSWORD`
-3. The workflow deploys to `ftpupload.net` and uploads this project into `/htdocs/`.
-4. Push your changes to `main` to trigger the deployment.
-5. Import `database/gicpctalaga.sql` into your InfinityFree MySQL database separately, because the workflow deploys files only.
+  - `LIVE_FTP_USERNAME` and `LIVE_FTP_PASSWORD` for the live domain, or reuse `FTP_USERNAME` and `FTP_PASSWORD` as shared fallbacks
+  - `STAGING_FTP_USERNAME` and `STAGING_FTP_PASSWORD` for the staging domain
+3. In the same Actions settings page, create these repository variables:
+  - `LIVE_FTP_SERVER_DIR` for the live document root. If you leave it unset, the workflow defaults live deployments to `htdocs/`.
+  - `STAGING_FTP_SERVER_DIR` for the staging document root used by `gicpctalaga.page.gd`.
+4. The workflow deploys to `ftpupload.net`, but each branch only uploads to its own configured server directory.
+5. Push to `staging` to deploy only the staging site, or push to `main` to deploy only the live site.
+6. Import `database/gicpctalaga.sql` into the correct InfinityFree MySQL database separately, because the workflow deploys files only.
 
 Notes:
 
 - `application/config/config.php` only loads Composer's autoloader when `vendor/autoload.php` exists, so this project does not require a Composer install step on InfinityFree.
-- `application/config/database.php` now handles the InfinityFree database connection directly for non-local hosts.
+- `application/config/database.php` now selects `if0_42125686_gicpctalaga` for `gicpctalaga.page.gd` and `if0_42125686_gicpclive` for `graceinchristpc.online`.
 - After the first deploy, make sure `application/cache/`, `application/cache/sessions/`, `application/logs/`, and `uploads/` are writable on the hosting account.
 
 ## CMS Modules

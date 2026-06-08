@@ -262,7 +262,7 @@ img {
 	overflow: hidden;
 	background:
 		linear-gradient(135deg, rgba(13, 43, 80, 0.94) 0%, rgba(18, 61, 115, 0.88) 52%, rgba(18, 61, 115, 0.76) 100%),
-		url('../images/hero-pattern.svg') center/cover no-repeat;
+		var(--hero-image, url('../images/hero-pattern.svg')) center/cover no-repeat;
 	color: #fff;
 }
 

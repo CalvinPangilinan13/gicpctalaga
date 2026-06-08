@@ -39,6 +39,7 @@ class Content extends Admin_Controller
 	public function index($module = 'church_profile')
 	{
 		$config = $this->get_module_config($module);
+		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
 
 		if (!empty($config['single']))
 		{
@@ -60,6 +61,7 @@ class Content extends Admin_Controller
 	public function create($module)
 	{
 		$config = $this->get_module_config($module);
+		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
 
 		if (!empty($config['single']) || (isset($config['allow_create']) && !$config['allow_create']))
 		{
@@ -79,9 +81,31 @@ class Content extends Admin_Controller
 		$this->render_form($module, $config, $item, 'create');
 	}
 
+	public function view($module, $id)
+	{
+		$config = $this->get_module_config($module);
+		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
+
+		if (empty($config['allow_view']))
+		{
+			redirect('admin/content/'.$module);
+		}
+
+		$model = $config['model'];
+		$item = !empty($config['single']) ? $this->{$model}->get_primary_profile() : $this->{$model}->get_by_id($id);
+
+		if (!$item && empty($config['single']))
+		{
+			show_404();
+		}
+
+		$this->render_form($module, $config, $item, 'view');
+	}
+
 	public function edit($module, $id)
 	{
 		$config = $this->get_module_config($module);
+		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
 		$model = $config['model'];
 
 		$item = !empty($config['single']) ? $this->{$model}->get_primary_profile() : $this->{$model}->get_by_id($id);
@@ -105,6 +129,7 @@ class Content extends Admin_Controller
 	public function delete($module, $id)
 	{
 		$config = $this->get_module_config($module);
+		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
 		$model = $config['model'];
 
 		if (!empty($config['single']) || (isset($config['allow_delete']) && !$config['allow_delete']))
@@ -127,8 +152,10 @@ class Content extends Admin_Controller
 
 	protected function render_form($module, $config, $item, $mode)
 	{
+		$mode_label = $mode === 'create' ? 'Create ' : ($mode === 'view' ? 'View ' : 'Edit ');
+
 		$data = array(
-			'page_title' => ($mode === 'create' ? 'Create ' : 'Edit ').$config['title'],
+			'page_title' => $mode_label.$config['title'],
 			'module' => $module,
 			'mode' => $mode,
 			'config' => $config,
@@ -176,6 +203,20 @@ class Content extends Admin_Controller
 				continue;
 			}
 
+			if ($field['type'] === 'checkbox_group')
+			{
+				$selected = $this->input->post($name);
+
+				if (!is_array($selected))
+				{
+					$selected = array();
+				}
+
+				$selected = array_values(array_unique(array_filter(array_map('trim', $selected), 'strlen')));
+				$payload[$name] = json_encode($selected);
+				continue;
+			}
+
 			if ($field['type'] === 'password')
 			{
 				$value = $this->input->post($name, FALSE);
@@ -215,6 +256,11 @@ class Content extends Admin_Controller
 			$source = $this->input->post($config['slug_source'], TRUE);
 			$slug = trim((string) $this->input->post($config['slug_field'], TRUE));
 			$payload[$config['slug_field']] = $this->make_slug($slug !== '' ? $slug : $source);
+		}
+
+		if ($module === 'roles' && isset($payload['slug']) && $payload['slug'] === 'administrator')
+		{
+			$payload['permissions'] = json_encode(array('all'));
 		}
 
 		$payload['updated_at'] = $timestamp;
@@ -327,6 +373,11 @@ class Content extends Admin_Controller
 	protected function get_role_options()
 	{
 		return $this->role_model->get_for_dropdown('id', 'name', 'Select role');
+	}
+
+	protected function get_permission_options()
+	{
+		return admin_permission_options();
 	}
 
 	protected function get_menu_parent_options()
@@ -626,6 +677,25 @@ class Content extends Admin_Controller
 					array('name' => 'is_featured', 'label' => 'Featured', 'type' => 'checkbox'),
 					array('name' => 'status', 'label' => 'Status', 'type' => 'select', 'options' => $status_options),
 					array('name' => 'gallery_images', 'label' => 'Gallery Images', 'type' => 'file', 'persist' => FALSE, 'upload' => array('path' => 'uploads/galleries/', 'types' => 'gif|jpg|jpeg|png|webp|svg')),
+				),
+			),
+			'roles' => array(
+				'title' => 'Roles',
+				'model' => 'role_model',
+				'permission' => 'roles',
+				'allow_view' => TRUE,
+				'slug_field' => 'slug',
+				'slug_source' => 'name',
+				'list_method' => 'get_all_with_permission_summary',
+				'columns' => array(
+					array('label' => 'Role Name', 'field' => 'name'),
+					array('label' => 'Slug', 'field' => 'slug'),
+					array('label' => 'Rights', 'field' => 'permission_count'),
+				),
+				'fields' => array(
+					array('name' => 'name', 'label' => 'Role Name', 'type' => 'text', 'required' => TRUE),
+					array('name' => 'slug', 'label' => 'Slug', 'type' => 'text'),
+					array('name' => 'permissions', 'label' => 'Access Rights', 'type' => 'checkbox_group', 'options_callback' => 'get_permission_options', 'help' => 'Choose the CMS modules this role can access. Existing legacy permissions like all and content remain compatible.'),
 				),
 			),
 			'users' => array(

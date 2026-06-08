@@ -126,6 +126,7 @@ class Admin_Controller extends CI_Controller
 	/** @var Activity_log_model */
 	public $activity_log_model;
 	protected $admin_user;
+	protected $admin_permissions = NULL;
 	protected $admin_data = array();
 
 	public function __construct()
@@ -135,9 +136,23 @@ class Admin_Controller extends CI_Controller
 		$this->ensure_authenticated();
 
 		$this->admin_user = $this->user_model->get_with_role((int) $this->session->userdata('user_id'));
+		$this->admin_permissions = normalize_role_permissions($this->admin_user && isset($this->admin_user->role_permissions) ? $this->admin_user->role_permissions : NULL);
+		$navigation = admin_navigation();
+		$filtered_navigation = array();
+
+		foreach ($navigation as $item)
+		{
+			$permission = isset($item['permission']) ? $item['permission'] : NULL;
+
+			if ($permission === NULL || $this->has_admin_access($permission))
+			{
+				$filtered_navigation[] = $item;
+			}
+		}
+
 		$this->admin_data = array(
 			'admin_user' => $this->admin_user,
-			'admin_menu' => admin_navigation(),
+			'admin_menu' => $filtered_navigation,
 			'church_profile' => $this->church_profile_model->get_primary_profile(),
 			'settings' => $this->setting_model->get_keyed_settings(),
 		);
@@ -158,6 +173,21 @@ class Admin_Controller extends CI_Controller
 		$this->load->view('admin/layout/sidebar', $data);
 		$this->load->view($view, $data);
 		$this->load->view('admin/layout/footer', $data);
+	}
+
+	protected function has_admin_access($permission)
+	{
+		return role_has_permission($this->admin_permissions, $permission);
+	}
+
+	protected function authorize_admin_access($permission)
+	{
+		if ($this->has_admin_access($permission))
+		{
+			return;
+		}
+
+		show_error('You do not have permission to access this module.', 403, 'Access Denied');
 	}
 
 	protected function log_activity($action, $module, $description)
