@@ -13,6 +13,7 @@ uploads/*
 !application/*/.htaccess
 
 composer.lock
+application/config/database.php
 application/config/database.production.php
 tests/mocks/database/ci_test.sqlite
 
