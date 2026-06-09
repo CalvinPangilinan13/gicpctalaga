@@ -9,7 +9,7 @@
 				<p class="hero-copy"><?php echo html_escape($hero_subtitle); ?></p>
 				<div class="hero-actions">
 					<a class="btn btn-church" href="<?php echo site_url($hero_button_link); ?>"><?php echo html_escape($hero_button_text); ?></a>
-					<a class="btn btn-outline-light" href="<?php echo site_url('sermons'); ?>">Listen to Sermons</a>
+					<a class="btn btn-outline-light" href="<?php echo site_url('sermons'); ?>">Listen to you</a>
 				</div>
 				<div class="row g-3 mt-4">
 					<div class="col-sm-6">
