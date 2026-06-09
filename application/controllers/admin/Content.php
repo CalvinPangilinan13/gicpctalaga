@@ -92,7 +92,7 @@ class Content extends Admin_Controller
 		}
 
 		$model = $config['model'];
-		$item = !empty($config['single']) ? $this->{$model}->get_primary_profile() : $this->{$model}->get_by_id($id);
+		$item = $this->get_module_item($module, $model, $id, !empty($config['single']));
 
 		if (!$item && empty($config['single']))
 		{
@@ -108,7 +108,7 @@ class Content extends Admin_Controller
 		$this->authorize_admin_access(isset($config['permission']) ? $config['permission'] : $module);
 		$model = $config['model'];
 
-		$item = !empty($config['single']) ? $this->{$model}->get_primary_profile() : $this->{$model}->get_by_id($id);
+		$item = $this->get_module_item($module, $model, $id, !empty($config['single']));
 
 		if (!$item && empty($config['single']))
 		{
@@ -137,7 +137,7 @@ class Content extends Admin_Controller
 			redirect('admin/content/'.$module);
 		}
 
-		$item = $this->{$model}->get_by_id($id);
+		$item = $this->get_module_item($module, $model, $id);
 
 		if (!$item)
 		{
@@ -258,6 +258,12 @@ class Content extends Admin_Controller
 			$payload[$config['slug_field']] = $this->make_slug($slug !== '' ? $slug : $source);
 		}
 
+		if ($module === 'settings' && isset($payload['setting_key']) && $this->setting_model->is_reserved_key($payload['setting_key']))
+		{
+			$this->session->set_flashdata('admin_error', 'Visitor Count is managed automatically and cannot be changed in Website Settings.');
+			return FALSE;
+		}
+
 		if ($module === 'roles' && isset($payload['slug']) && $payload['slug'] === 'administrator')
 		{
 			$payload['permissions'] = json_encode(array('all'));
@@ -352,6 +358,21 @@ class Content extends Admin_Controller
 		}
 
 		return $this->{$model}->get_all();
+	}
+
+	protected function get_module_item($module, $model, $id, $single = FALSE)
+	{
+		if ($single)
+		{
+			return $this->{$model}->get_primary_profile();
+		}
+
+		if ($module === 'settings')
+		{
+			return $this->setting_model->get_manageable_by_id($id);
+		}
+
+		return $this->{$model}->get_by_id($id);
 	}
 
 	protected function list_event_registrations()
@@ -827,6 +848,7 @@ class Content extends Admin_Controller
 			'settings' => array(
 				'title' => 'Website Settings',
 				'model' => 'setting_model',
+				'list_method' => 'get_manageable_settings',
 				'columns' => array(
 					array('label' => 'Key', 'field' => 'setting_key'),
 					array('label' => 'Label', 'field' => 'label'),

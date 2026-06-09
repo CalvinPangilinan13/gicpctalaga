@@ -419,11 +419,10 @@ INSERT INTO `settings` (`id`, `setting_key`, `setting_value`, `setting_group`, `
 (5, 'hero_button_text', 'Join Us This Sunday', 'homepage', 'Hero Button Text', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
 (6, 'hero_button_link', 'contact', 'homepage', 'Hero Button Link', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
 (7, 'footer_text', 'Grace in Christ Presbyterian Church - Talaga. All rights reserved.', 'general', 'Footer Text', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
-(8, 'visitor_count', '128', 'analytics', 'Visitor Count', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
-(9, 'primary_color', '#123d73', 'branding', 'Primary Color', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
-(10, 'secondary_color', '#c7a756', 'branding', 'Secondary Color', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
-(11, 'contact_email', 'info@gicptalaga.org', 'contact', 'Contact Email', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
-(12, 'contact_phone', '09171234567', 'contact', 'Contact Phone', '2026-06-08 08:00:00', '2026-06-08 08:00:00');
+(8, 'primary_color', '#123d73', 'branding', 'Primary Color', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
+(9, 'secondary_color', '#c7a756', 'branding', 'Secondary Color', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
+(10, 'contact_email', 'info@gicptalaga.org', 'contact', 'Contact Email', '2026-06-08 08:00:00', '2026-06-08 08:00:00'),
+(11, 'contact_phone', '09171234567', 'contact', 'Contact Phone', '2026-06-08 08:00:00', '2026-06-08 08:00:00');
 
 INSERT INTO `menu_items` (`id`, `label`, `url`, `icon`, `target`, `parent_id`, `sort_order`, `is_visible`, `created_at`, `updated_at`) VALUES
 (1, 'Home', '', 'bi-house', '_self', NULL, 1, 1, '2026-06-08 08:00:00', '2026-06-08 08:00:00'),

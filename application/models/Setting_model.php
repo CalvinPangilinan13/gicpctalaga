@@ -5,6 +5,7 @@ class Setting_model extends MY_Model
 {
 	protected $table = 'settings';
 	protected $order_by = 'setting_group ASC, label ASC';
+	protected $reserved_keys = array('visitor_count');
 
 	public function get_keyed_settings()
 	{
@@ -28,6 +29,38 @@ class Setting_model extends MY_Model
 		}
 
 		return $grouped;
+	}
+
+	public function get_manageable_settings()
+	{
+		if (!empty($this->reserved_keys))
+		{
+			$this->db->where_not_in('setting_key', $this->reserved_keys);
+		}
+
+		if ($this->order_by)
+		{
+			$this->db->order_by($this->order_by);
+		}
+
+		return $this->db->get($this->table)->result();
+	}
+
+	public function get_manageable_by_id($id)
+	{
+		$this->db->where($this->primary_key, $id);
+
+		if (!empty($this->reserved_keys))
+		{
+			$this->db->where_not_in('setting_key', $this->reserved_keys);
+		}
+
+		return $this->db->get($this->table)->row();
+	}
+
+	public function is_reserved_key($key)
+	{
+		return in_array((string) $key, $this->reserved_keys, TRUE);
 	}
 
 	public function increment_setting($key)
