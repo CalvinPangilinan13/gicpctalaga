@@ -15,6 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  * @property Sermon_model $sermon_model
  * @property Gallery_model $gallery_model
  * @property Service_schedule_model $service_schedule_model
+ * @property Visitor_log_model $visitor_log_model
  * @property Setting_model $setting_model
  * @property Menu_model $menu_model
  * @property Activity_log_model $activity_log_model
@@ -41,6 +42,8 @@ class Site_Controller extends CI_Controller
 	public $gallery_model;
 	/** @var Service_schedule_model */
 	public $service_schedule_model;
+	/** @var Visitor_log_model */
+	public $visitor_log_model;
 	/** @var Setting_model */
 	public $setting_model;
 	/** @var Menu_model */
@@ -62,6 +65,7 @@ class Site_Controller extends CI_Controller
 			'pastor_model',
 			'sermon_model',
 			'gallery_model',
+			'visitor_log_model',
 			'service_schedule_model'
 		));
 
@@ -86,21 +90,20 @@ class Site_Controller extends CI_Controller
 
 	protected function track_visitor()
 	{
-		if ($this->session->userdata('visitor_logged'))
+		$visited_on = date('Y-m-d');
+
+		if ($this->session->userdata('visitor_logged_on') === $visited_on)
 		{
 			return;
 		}
 
-		$payload = array(
-			'ip_address' => $this->input->ip_address(),
-			'user_agent' => substr((string) $this->input->user_agent(), 0, 255),
-			'visited_on' => date('Y-m-d'),
-			'created_at' => date('Y-m-d H:i:s'),
+		$this->visitor_log_model->log_visit(
+			$this->input->ip_address(),
+			substr((string) $this->input->user_agent(), 0, 255),
+			$visited_on
 		);
 
-		$this->db->insert('visitor_logs', $payload);
-		$this->session->set_userdata('visitor_logged', TRUE);
-		$this->setting_model->increment_setting('visitor_count');
+		$this->session->set_userdata('visitor_logged_on', $visited_on);
 	}
 }
 

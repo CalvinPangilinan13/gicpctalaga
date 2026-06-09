@@ -53,7 +53,7 @@ class Site extends Site_Controller
 			'latest_news' => $this->news_update_model->get_featured(3),
 			'latest_sermons' => $this->sermon_model->get_published('', 3),
 			'featured_albums' => $this->gallery_model->get_featured(3),
-			'visitor_count' => setting_value($this->site_data['settings'], 'visitor_count', '0'),
+			'visitor_count' => $this->visitor_log_model->count_logged_visits(),
 		);
 
 		$this->render('site/home', $data);

@@ -61,7 +61,7 @@
 		<div class="row g-4 align-items-stretch">
 			<div class="col-lg-7">
 				<div class="section-heading">
-					<span class="eyebrow">About GICP Talaga</span>
+					<span class="eyebrow">About GICPC</span>
 					<h2 class="section-title">A congregation grounded in Scripture, grace, and Gospel witness.</h2>
 					<p class="section-lead"><?php echo html_escape($church_profile->brief_intro); ?></p>
 				</div>
