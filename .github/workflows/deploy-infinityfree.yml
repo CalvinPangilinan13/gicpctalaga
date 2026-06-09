@@ -43,7 +43,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          server-dir: htdocs/
+          server-dir: /gicpctalaga.page.gd/htdocs/
           exclude: |
             **/.git*
             **/.github/**
