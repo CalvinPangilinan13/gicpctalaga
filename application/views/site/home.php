@@ -9,12 +9,12 @@
 				<p class="hero-copy"><?php echo html_escape($hero_subtitle); ?></p>
 				<div class="hero-actions">
 					<a class="btn btn-church" href="<?php echo site_url($hero_button_link); ?>"><?php echo html_escape($hero_button_text); ?></a>
-					<a class="btn btn-outline-light" href="<?php echo site_url('sermons'); ?>">Listen to you</a>
+					<a class="btn btn-outline-light" href="<?php echo site_url('sermons'); ?>">Listen to Sermons</a>
 				</div>
 				<div class="row g-3 mt-4">
 					<div class="col-sm-6">
 						<div class="hero-highlight">
-							<div class="card-overline text-white-50">Church Name</div>
+							<div class="card-overline text-white-50">Full Name</div>
 							<h2 class="h3 mb-2"><?php echo html_escape($church_profile->church_name); ?></h2>
 							<p class="mb-0 text-white-50"><?php echo html_escape($church_profile->welcome_message); ?></p>
 						</div>
