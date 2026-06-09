@@ -14,7 +14,7 @@
 				<div class="row g-3 mt-4">
 					<div class="col-sm-6">
 						<div class="hero-highlight">
-							<div class="card-overline text-white-50">Full Name</div>
+							<div class="card-overline text-white-50">Church Name</div>
 							<h2 class="h3 mb-2"><?php echo html_escape($church_profile->church_name); ?></h2>
 							<p class="mb-0 text-white-50"><?php echo html_escape($church_profile->welcome_message); ?></p>
 						</div>
